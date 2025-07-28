@@ -27,13 +27,13 @@ namespace FlashFit.Controllers
 
         [HttpPost]
         [Route("create")]
-        public async Task<IActionResult> CreateUser([FromBody] User user)
+        public async Task<IActionResult> CreateUser([FromBody] UserData user)
         {
             try
             {
                 var Assasclient = _httpClientFactory.CreateClient();
 
-                if (user.MetodoPagamento == "Pix" && user.IdPlano == "Plano de Treino FF")
+                if (user.Plano.MetodoPagamento == "Pix" && user.Plano.Id == "FF01")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
@@ -71,6 +71,9 @@ namespace FlashFit.Controllers
                     if (requestAsaas.IsSuccessStatusCode)
                     {
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+
+
+                        user.User.Id= resultado.Id;
 
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
@@ -93,7 +96,8 @@ namespace FlashFit.Controllers
                         return Ok(resultado);
                     }
                 }
-                else if (user.MetodoPagamento == "Cartão de Crédito/Débito" && user.IdPlano == "Plano de Treino FF")
+
+                else if (user.Plano.Id == "Cartão de Crédito/Débito" && user.Plano.Id == "FF01")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
@@ -131,7 +135,10 @@ namespace FlashFit.Controllers
 
                     if (requestAsaas.IsSuccessStatusCode)
                     {
+
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+                        user.User.Id = resultado.Id;
+
 
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
@@ -161,7 +168,7 @@ namespace FlashFit.Controllers
                     }
                 }
 
-                else if (user.MetodoPagamento == "Cartão de Crédito/Débito" && user.IdPlano == "Plano Alimentar FF")
+                else if (user.Plano.MetodoPagamento == "Cartão de Crédito/Débito" && user.Plano.Id == "FF02")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
@@ -196,6 +203,7 @@ namespace FlashFit.Controllers
                     if (requestAsaas.IsSuccessStatusCode)
                     {
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+                        user.User.Id = resultado.Id;
 
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
@@ -226,7 +234,8 @@ namespace FlashFit.Controllers
 
 
                 }
-                else if (user.MetodoPagamento == "Pix" && user.IdPlano == "Plano Alimentar FF")
+
+                else if (user.Plano.MetodoPagamento == "Pix" && user.Plano.Id == "FF02")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
@@ -261,6 +270,7 @@ namespace FlashFit.Controllers
                     if (requestAsaas.IsSuccessStatusCode)
                     {
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+                        user.User.Id = resultado.Id;
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
                             new AuthenticationHeaderValue("Bearer", RedisKey);
@@ -284,11 +294,12 @@ namespace FlashFit.Controllers
 
                     }
                 }
-                else if (user.MetodoPagamento == "Cartão de Crédito/Débito" && user.IdPlano == "Combo Flash Fit")
+
+                else if (user.Plano.MetodoPagamento == "Cartão de Crédito/Débito" && user.Plano.Id == "FF03")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
-                        BillingTypes = new List<string> { "PIX" },
+                        BillingTypes = new List<string> { "CREDIT_CARD" },
                         ChargeTypes = new List<string> { "DETACHED" },
                         Callback = new Callback
                         {
@@ -319,6 +330,7 @@ namespace FlashFit.Controllers
                     if (requestAsaas.IsSuccessStatusCode)
                     {
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+                        user.User.Id = resultado.Id;
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
                             new AuthenticationHeaderValue("Bearer", RedisKey);
@@ -336,11 +348,12 @@ namespace FlashFit.Controllers
                         return Ok(resultado);
                     }
                 }
-                else if (user.MetodoPagamento == "Pix" && user.IdPlano == "Combo Flash Fit")
+
+                else if (user.Plano.MetodoPagamento == "Pix" && user.Plano.Id == "FF03")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
-                        BillingTypes = new List<string> { "CREDIT_CARD" },
+                        BillingTypes = new List<string> { "PIX" },
                         ChargeTypes = new List<string> { "DETACHED" },
                         Callback = new Callback
                         {
@@ -371,6 +384,7 @@ namespace FlashFit.Controllers
                     if (requestAsaas.IsSuccessStatusCode)
                     {
                         var resultado = JsonSerializer.Deserialize<CheckoutResponse>(responseContent);
+                        user.User.Id = resultado.Id;
                         var Redisclient = _httpClientFactory.CreateClient();
                         Redisclient.DefaultRequestHeaders.Authorization =
                             new AuthenticationHeaderValue("Bearer", RedisKey);

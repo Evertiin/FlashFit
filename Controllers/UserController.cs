@@ -422,16 +422,18 @@ namespace FlashFit.Controllers
                     new AuthenticationHeaderValue("Bearer", RedisKey);
 
                 var response = await client.GetAsync($"{BaseUrl}/get/{uiid}");
+
                 if (response.IsSuccessStatusCode)
                 {
                     var content = await response.Content.ReadAsStringAsync();
                     var outerJson = JsonDocument.Parse(content);
                     var resultString = outerJson.RootElement.GetProperty("result").GetString();
-
+                    
                     // 2º passo: desserializar o conteúdo JSON original
                     var resultJson = JsonDocument.Parse(resultString);
+
                     return Ok(resultJson.RootElement);
-                }
+                } 
                 else
                 {
                     _logger.LogError($"Erro ao obter usuário: {response.ReasonPhrase}");

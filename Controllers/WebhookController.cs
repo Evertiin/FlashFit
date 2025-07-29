@@ -25,65 +25,64 @@ namespace FlashFit.Controllers
         }
 
         [HttpPost]
-        public async Task < IActionResult> ReceiveWebhook([FromBody] WebhookResponseDto payload)
+        public async Task<IActionResult> ReceiveWebhook([FromBody] WebhookResponseDto payload)
         {
-            var id = payload.Id;
+            var checkoutId = payload.Checkout.Id;
+            if (string.IsNullOrEmpty(checkoutId))
+            {
+                _logger.LogError("Checkout ID não encontrado no payload.");
+                return BadRequest("Checkout ID não encontrado.");
+            }
+
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization =
                 new AuthenticationHeaderValue("Bearer", RedisKey);
 
-            var response = await client.GetAsync($"{BaseUrl}/get/{id}");
+            var response = await client.GetAsync($"{BaseUrl}/{checkoutId}");
 
             if (!response.IsSuccessStatusCode)
             {
                 _logger.LogError($"Erro ao obter dados do webhook: {response.ReasonPhrase}");
                 return StatusCode((int)response.StatusCode, "Erro ao processar o webhook.");
             }
-            if (response.IsSuccessStatusCode)
+
+            var content = await response.Content.ReadAsStringAsync();
+            var outerJson = JsonDocument.Parse(content);
+            var resultString = outerJson.RootElement.GetProperty("result").GetString();
+
+            var user = JsonSerializer.Deserialize<UserData>(resultString);
+
+            if (user.User.Id == checkoutId)
             {
-                var content = await response.Content.ReadAsStringAsync();
-                var outerJson = JsonDocument.Parse(content);
-                var resultString = outerJson.RootElement.GetProperty("result").GetString();
+                Console.WriteLine("Deu Bom");
+            }
 
-                var user = JsonSerializer.Deserialize<UserData>(resultString);
-
-                if (user.User.Id == id)
-                {
-                    Console.WriteLine("Deu Bom");
-                }
-                var clientRedis = _httpClientFactory.CreateClient();
-                                clientRedis.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", RedisKey);
-                var comando = new object[]
-                        {
-                        "DEL",
-                         $"{id}"
-                        };
-
-                string comandoJson = JsonSerializer.Serialize(comando);
-                var contentDelete = new StringContent(comandoJson, Encoding.UTF8, "application/json");
-
-                var responseRedis = await clientRedis.PostAsync($"{BaseUrl}", contentDelete);
-
-                if (responseRedis.IsSuccessStatusCode)
-                {
-                    var contentRedis = await responseRedis.Content.ReadAsStringAsync();
-                    var userRedis = JsonSerializer.Deserialize<UserData>(contentRedis);
-
-                    if (userRedis != null)
+            var clientRedis = _httpClientFactory.CreateClient();
+            clientRedis.DefaultRequestHeaders.Authorization =
+                new AuthenticationHeaderValue("Bearer", RedisKey);
+            var comando = new object[]
                     {
-                        // Process userRedis
-                    }
-                }
+                    "DEL",
+                     $"{checkoutId}"
+                    };
 
-                return Ok(user);
-            }
-            else
+            string comandoJson = JsonSerializer.Serialize(comando);
+            var contentDelete = new StringContent(comandoJson, Encoding.UTF8, "application/json");
+
+            var responseRedis = await clientRedis.PostAsync($"{BaseUrl}", contentDelete);
+
+            if (responseRedis.IsSuccessStatusCode)
             {
-                _logger.LogError($"Erro ao obter usuário: {response.ReasonPhrase}");
-                return StatusCode((int)response.StatusCode, "Erro ao obter usuário.");
+                var contentRedis = await responseRedis.Content.ReadAsStringAsync();
+                var userRedis = JsonSerializer.Deserialize<UserData>(contentRedis);
+
+                if (userRedis != null)
+                {
+                    // Process userRedis
+                }
             }
 
+            return Ok(user);
         }
     }
 }

@@ -14,15 +14,22 @@ namespace FlashFit.Controllers
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly ILogger _logger;
-        private readonly string BaseUrl = "https://witty-mustang-18974.upstash.io";
-        private readonly string BaseUrlAsaas = "https://api-sandbox.asaas.com/v3/checkouts";
-        private readonly string RedisKey = "AUoeAAIjcDE0ZTcxMmM5MjA4MjI0NTJmOGIwNjg4MTM2ZjU0YjA1N3AxMA";
-        private readonly string BearerAsaas = "$aact_hmlg_000MzkwODA2MWY2OGM3MWRlMDU2NWM3MzJlNzZmNGZhZGY6OjljYTdlNzk1LTVjYmUtNDg0MS1hZjc1LTY3Yjg5YzMxYmZmYjo6JGFhY2hfOTY5YTBkMmYtZDE1Zi00NGE1LWFkY2YtODIwZjA4ZjdjOTA4";
 
-        public UserController(IHttpClientFactory httpClientFactory, ILogger<UserController> logger)
+        private string BaseUrl => _configuration["Redis:BaseUrl"];
+        private string RedisKey => _configuration["Redis:Key"];
+        private string BaseUrlAsaas => _configuration["Asaas:BaseUrl"];
+        private string BearerAsaas => _configuration["Asaas:BearerToken"];
+
+        private readonly IConfiguration _configuration;
+
+        public UserController(
+            IHttpClientFactory httpClientFactory,
+            ILogger<UserController> logger,
+            IConfiguration configuration)
         {
             _httpClientFactory = httpClientFactory;
             _logger = logger;
+            _configuration = configuration;
         }
 
         [HttpPost]
@@ -64,6 +71,14 @@ namespace FlashFit.Controllers
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
 
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
+
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
 
@@ -97,7 +112,7 @@ namespace FlashFit.Controllers
                     }
                 }
 
-                else if (user.Plano.Id == "Cartão de Crédito/Débito" && user.Plano.Id == "FF01")
+                else if (user.Plano.MetodoPagamento == "Cartão de Crédito/Débito" && user.Plano.Id == "FF01")
                 {
                     var checkoutRequest = new CheckoutRequest
                     {
@@ -128,6 +143,14 @@ namespace FlashFit.Controllers
                     var contentAsaas = new StringContent(json, Encoding.UTF8, "application/json");
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
+
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
 
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
@@ -198,6 +221,13 @@ namespace FlashFit.Controllers
                     var contentAsaas = new StringContent(json, Encoding.UTF8, "application/json");
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
                     if (requestAsaas.IsSuccessStatusCode)
@@ -265,6 +295,13 @@ namespace FlashFit.Controllers
                     var contentAsaas = new StringContent(json, Encoding.UTF8, "application/json");
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
                     if (requestAsaas.IsSuccessStatusCode)
@@ -325,6 +362,13 @@ namespace FlashFit.Controllers
                     var contentAsaas = new StringContent(json, Encoding.UTF8, "application/json");
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
                     if (requestAsaas.IsSuccessStatusCode)
@@ -379,6 +423,13 @@ namespace FlashFit.Controllers
                     var contentAsaas = new StringContent(json, Encoding.UTF8, "application/json");
                     Assasclient.DefaultRequestHeaders.Add("User-Agent", "FlashFit");
                     Assasclient.DefaultRequestHeaders.Add("access_token", BearerAsaas);
+                    _logger.LogInformation(
+                        "Chamada para API Asaas: Endpoint={Endpoint}, MetodoPagamento={MetodoPagamento}, PlanoId={PlanoId}, Body={Body}",
+                        BaseUrlAsaas,
+                        user.Plano.MetodoPagamento,
+                        user.Plano.Id,
+                        json
+                    );
                     var requestAsaas = await Assasclient.PostAsync($"{BaseUrlAsaas}", contentAsaas);
                     var responseContent = await requestAsaas.Content.ReadAsStringAsync();
                     if (requestAsaas.IsSuccessStatusCode)

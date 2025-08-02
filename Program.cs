@@ -20,7 +20,10 @@ namespace FlashFit
                 options.AddPolicy("AllowAllOrigins",
                     builder => builder.AllowAnyOrigin()
                                       .AllowAnyMethod()
-                                      .AllowAnyHeader());
+                                      .AllowAnyHeader()
+                                      .SetIsOriginAllowed(_ => true) // força liberação dinâmica
+                                      .WithExposedHeaders("Content-Disposition") // se precisar baixar algo
+                                 );
             });
             var app = builder.Build();
             // Configure the HTTP request pipeline.

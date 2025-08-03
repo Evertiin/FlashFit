@@ -48,9 +48,9 @@ namespace FlashFit.Controllers
                         ChargeTypes = new List<string> { "DETACHED" },
                         Callback = new Callback
                         {
-                            SuccessUrl = "https://flash-fit-front.vercel.app/success",
-                            CancelUrl = "https://flash-fit-front.vercel.app/error",
-                            ExpiredUrl = "https://example.com/expired"
+                            SuccessUrl = "https://flashfitoficial.com.br/success",
+                            CancelUrl = "https://flashfitoficial.com.br/error",
+                            ExpiredUrl = "https://flashfitoficial.com.br/expired"
                         },
                         Items = new List<Item>
                         {
